@@ -5,18 +5,122 @@ date: "December 25, 2015"
 output: html_document
 ---
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+# Study
+This study uses **Human Activity Recognition** data (Velloso et al, 2012), collected from six
+exercisers equipped with accelerometers, to create and test a prediction function to predict
+exercise quality based on data from the accelerometers.  This is a classification problem.
+Expected out-of-sample error is estimated to be XXX.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+# Method
+1. **Split Datasets**. Three datasets are used: the original training dataset is split into a `training` and `testing` set. The original testing dataset is held aside as the `validation` set.
+2. **Define Error Rate**. Accuracy of predictions on the `training` set is used to
+select covariates.  Accuracy of predictions on the `testing` set is used to refine 
+the final model, which is used one time only on the `validation` dataset.
+3. **Pick Features and Cross Validate**. 53 of the 160 columns are used as features.  Features are retained
+which a) are readings from the accelerometers, b) do not have large amounts of missing data, and 
+c) do not have Near Zero Variability.  Cross-validation is done on the `testing` dataset to determine if the
+features retained are useful.
+4. **Pick Prediction Function**.  *Random Forest* is trained using the `training` dataset,
+as it gives good accuracy on 
+classification problems.  The trained prediction function is cross-validated using the `testing` data set.
+5. **Seek Parsimony**.  The `training` and `testing` datasets are used to find the smallest number
+of predictor features that return a good error rate.  This avoids overfitting and improves robustness.
+6. **Validate**. Predictions are made using the `validation` dataset and submitted for grading.
 
-```{r}
-summary(cars)
+# Load libraries
+```{r load_libraries, echo=TRUE, message=FALSE, results='hide'}
+require(caret)
+require(rpart)
+require(dplyr)
+require(randomForest)
+require(e1071)
+require(rpart)
 ```
 
-You can also embed plots, for example:
+# Split data into training, testing, and validation sets
+```{r read_data, echo=TRUE, message=FALSE, results='hide'}
+if (file.exists("raw_training.sav")) {
+  load("raw_training.sav")
+  load("validation.sav")
+} else {
+  raw_training <- read.csv("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv")
+  save(raw_training, file="raw_training.sav")
+  validation <- read.csv("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv")
+  save(validation, file="validation.sav")
+}
 
-```{r, echo=FALSE}
-plot(cars)
+# Create a training and testing set from the training data
+inTrain <- createDataPartition(y=raw_training$classe, p=0.7, list=FALSE)
+training <- raw_training[inTrain,]
+testing <- raw_training[-inTrain,]
+# Now we have a training set, a testing set, and a validation set
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+# Pick features and cross-validate (training set)
+```{r pick_features, echo=TRUE, message=FALSE, results='hide'}
+# Choose Useful Covariates
+# 1) remove predictors that include NAs, and columns that are unique for the user/instance
+training.important <- training[,!unlist(lapply(training, function(x) any(is.na(x))))]
+
+# 2) use nearZeroVar function to exclude columns without sufficient variance
+nz.table <- nearZeroVar(training.important, saveMetrics=TRUE)
+keep.columns <- row.names(nz.table[!nz.table$nzv,])
+
+# 3) Remove columns that identify individual records
+keep.columns <- keep.columns[is.na(match(
+  keep.columns,
+  c(
+    "X", "user_name", "raw_timestamp_part_1", "raw_timestamp_part_2",
+    "cvtd_timestamp", "num_window"
+  )
+))]
+
+# Retain important features in both the training and testing datasets
+training.important <- training %>% select(match(keep.columns, names(training)))
+testing.important <- testing %>% select(match(keep.columns, names(training)))
+```
+
+# Pick the prediction function and cross-validate (training set)
+# Use random forest using train function.
+```{r pick_function, echo=TRUE, message=FALSE, results='hide'}
+rf <- randomForest(classe ~ . -classe, data=training.important, ntree=200 )
+```
+
+# Apply features and prediction function to test set, refine
+# (See Preprocessing video) use preProcess to create a preObj
+# object on the training data.  Then apply the preObj object to the
+# testing data.
+```{r cross_validate, echo=TRUE, message=FALSE, results='markup'}
+# predict outcome for test data set using the random forest model
+pred.important <- predict(rf,testing.important)
+# compare results to testing set - Accuracy
+confusionMatrix(testing.important$classe, pred.important)
+```
+
+```{r parsimony, echo=TRUE, message=FALSE, results='markup'}
+# Important variables
+importance <- varImp(rf)
+important.features <- importance %>% mutate(nm=rownames(importance)) %>% arrange(desc(Overall))
+
+training.parsimony <- training.important[,match(c("classe",important.features[1:18,]$nm),
+                                                names(training.important))]
+
+# Try a more parsimonious model based on these importance values
+rf.parsimony <- randomForest(classe ~ ., data=training.parsimony, ntree=200 )
+# predict outcome for test data set using the random forest model
+pred.parsimony <- predict(rf.parsimony,testing.important)
+
+confusionMatrix(pred.parsimony, testing.important$classe)
+```
+
+# Apply refined features and prediction function to validation set
+20 predictions, based on the `validation` dataset, 
+were uploaded for grading and found to be 100% accurate.
+```{r validation_set, echo=TRUE, message=FALSE, results='markup'}
+pred.validation <- predict(rf.parsimony,validation)
+```
+
+# References
+Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. **Qualitative Activity Recognition of Weight Lifting Exercises**. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.
+
+Read more: http://groupware.les.inf.puc-rio.br/har#wle_paper_section#ixzz3vSUxvss5
