@@ -9,19 +9,19 @@ output: html_document
 knitr::opts_chunk$set(cache=TRUE)
 ```
 
-# Study
+## Study
 This study uses **Human Activity Recognition** data (Velloso et al, 2013), collected from six
 exercisers equipped with accelerometers, to create and test a prediction function to predict
 exercise quality based on data from the accelerometers.  This is a classification problem.
 
-# Expected Out-of-Sample Error
+## Expected Out-of-Sample Error
 Out-of-sample error of
 the most parsimonious prediction function,
 using only 18 features,
 is estimated to be 0.84%, with a cross-validated
 accuracy of 99.07%.
 
-# Method
+## Method
 1. **Split Datasets**. Three datasets are used: the original training dataset is split into a `training` and `testing` set. The original testing dataset is held aside as the `validation` set.
 2. **Define Error Rate**. Accuracy of predictions on the `training` set is used to
 select covariates.  Cross-validated accuracy of predictions on the `testing` set is used to refine 
@@ -41,13 +41,13 @@ predictor features, while retaining good estimated
 out-of-sample error and accuracy.
 6. **Validate**. Predictions are made using the `validation` dataset and submitted for grading.
 
-# Expected Out-of-Sample Error
+## Expected Out-of-Sample Error
 Out-of-sample error of
 the most parsimonious prediction function
 is estimated to be 0.84%, with a cross-validated
 accuracy of 99.07%.
 
-# Load libraries
+## Load libraries
 ```{r load_libraries, echo=TRUE, message=FALSE, results='hide'}
 require(caret)
 require(rpart)
@@ -57,7 +57,7 @@ require(e1071)
 require(rpart)
 ```
 
-# Split data into training, testing, and validation sets
+## Split data into training, testing, and validation sets
 Three datasets are used: the original training dataset is split into a `training` and `testing` set. The original testing dataset is held aside as the `validation` set.
 ```{r read_data, echo=TRUE, message=FALSE, results='hide'}
 if (file.exists("raw_training.sav")) {
@@ -77,7 +77,7 @@ testing <- raw_training[-inTrain,]
 # Now we have a training set, a testing set, and a validation set
 ```
 
-# Pick features and cross-validate (training set)
+## Pick features and cross-validate (training set)
 Initially, 53 of the 160 columns are used as features.  Features are retained
 which a) are readings from the accelerometers, b) do not have large amounts of missing data, and 
 c) do not have Near Zero Variability.  Cross-validation is done on the `testing` dataset to determine if the
@@ -105,10 +105,9 @@ keep.columns <- keep.columns[is.na(match(
 
 # Retain important features in both the training and testing datasets
 training.important <- training %>% select(match(keep.columns, names(training)))
-#testing.important <- testing %>% #select(match(keep.columns, names(training)))
 ```
 
-# Pick the prediction function and cross-validate 
+## Pick the prediction function and cross-validate 
 *Random Forest* is trained using the `training` dataset,
 as it gives good accuracy on 
 classification problems.  The trained prediction function is cross-validated using the `testing` data set.
@@ -116,18 +115,17 @@ classification problems.  The trained prediction function is cross-validated usi
 rf <- randomForest(classe ~ . -classe, data=training.important, ntree=200 )
 ```
 
-# Apply Features and Prediction Function to Test set
+## Apply Features and Prediction Function to Test set
 ```{r cross_validate, echo=TRUE, message=FALSE, results='markup'}
 # predict outcome for test data set using the random forest model
-#pred.important <- predict(rf,testing.important)
 pred.important <- predict(rf,testing)
 # compare results to testing set - Accuracy
-#confusionMatrix(testing.important$classe, pred.important)
 confusionMatrix(testing$classe, pred.important)
 ```
 
-# Refine the Features to Seek Parsimony
-Determine the most parsimonious set of features
+## Refine the Features to Seek Parsimony
+Use `caret::varImp` to
+determine the most parsimonious set of features
 that retains a good error rate.  Reducing the number 
 of features from 53 to 18 retains a cross-validated
 accuracy of 99.07% and an estimated Out-of-Sample error
@@ -143,14 +141,12 @@ training.parsimony <- training.important[,match(c("classe",important.features[1:
 # Try a more parsimonious model based on these importance values
 rf.parsimony <- randomForest(classe ~ ., data=training.parsimony, ntree=200 )
 # predict outcome for test data set using the random forest model
-#pred.parsimony <- predict(rf.parsimony,testing.important)
 pred.parsimony <- predict(rf.parsimony,testing)
-
-#confusionMatrix(pred.parsimony, testing.important$classe)
+# Show confusion matrix of prediction function
 confusionMatrix(pred.parsimony, testing$classe)
 ```
 
-# Graphical Representation of Parsimonious Features
+## Graphical Representation of Parsimonious Features
 The following graphic gives some idea of how `classe`
 is grouped by the first two features used to
 train the prediction function.  In reality,
@@ -159,11 +155,12 @@ train the prediction function.  In reality,
 qplot(roll_belt, yaw_belt, col=classe, data=training)
 ```
 
-# Apply Prediction Function to Validation Dataset
+## Apply Prediction Function to Validation Dataset
 Apply refined features and prediction function to validation set.  
 Out-of-sample error of
 the most parsimonious prediction function
-is estimated to be 0.84%.  In practice,
+is estimated to be 0.84%, with a cross-validated
+accuracy of 99.07%.  In practice,
 20 predictions, based on the `validation` dataset, 
 were uploaded for grading and found to be 100% accurate.
 
@@ -171,7 +168,7 @@ were uploaded for grading and found to be 100% accurate.
 pred.validation <- predict(rf.parsimony,validation)
 ```
 
-# References
+## References
 Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. **Qualitative Activity Recognition of Weight Lifting Exercises**. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.
 
 Read more: http://groupware.les.inf.puc-rio.br/har
