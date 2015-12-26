@@ -14,6 +14,9 @@ This study uses **Human Activity Recognition** data (Velloso et al, 2013), colle
 exercisers equipped with accelerometers, to create and test a prediction function to predict
 exercise quality based on data from the accelerometers.  This is a classification problem.
 
+## GitHub Repository
+https://github.com/TimothyChenAllen/practicalmachinelearning
+
 ## Expected Out-of-Sample Error
 Out-of-sample error of
 the most parsimonious prediction function,
