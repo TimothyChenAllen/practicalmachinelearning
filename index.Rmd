@@ -24,7 +24,7 @@ Out-of-sample error of
 the most parsimonious prediction function,
 using only 18 features,
 is estimated to be less than 1% (0.76%), with a cross-validated
-accuracy of 99.25%.
+accuracy of 99.2% (from `caret::confusionMatrix`).
 
 ## Method
 1. **Split Datasets**. Three datasets are used: the original training dataset is split into a `training` and `testing` set. The original testing dataset is held aside as the `validation` set.
@@ -38,13 +38,13 @@ features retained are useful.
 4. **Pick Prediction Function**.  *Random Forest* is trained using the `training` dataset,
 as it gives good accuracy on 
 classification problems.  The trained prediction function is cross-validated using the `testing` data set.
-5. **Seek Parsimony**.  The `training` and `testing` datasets are used to find the smallest number
+5. **Refine prediction function, seeking parsimony**.  The `training` and `testing` datasets are used to find the smallest number
 of predictor features that return a good error rate.  This avoids overfitting and improves robustness.
 The final prediction function is trained
 and corss-validated using a set of only 18
 predictor features, while retaining good estimated
 out-of-sample error and accuracy.
-6. **Validate**. Predictions are made using the `validation` dataset and submitted for grading.
+6. **Validate final prediction function**. Predictions are made using the `validation` dataset and submitted for grading.
 
 ## Load libraries
 ```{r load_libraries, echo=TRUE, message=FALSE, results='hide'}
@@ -70,6 +70,7 @@ if (file.exists("raw_training.sav")) {
 }
 
 # Create a training and testing set from the training data
+set.seed(42)
 inTrain <- createDataPartition(y=raw_training$classe, p=0.7, list=FALSE)
 training <- raw_training[inTrain,]
 testing <- raw_training[-inTrain,]
@@ -127,8 +128,8 @@ Use `caret::varImp` to
 determine the most parsimonious set of features
 that retains a good error rate.  Reducing the number 
 of features from 53 to 18 retains a cross-validated
-accuracy of 99.25% and an estimated Out-of-Sample error
-of less than 1% (0.76%).
+accuracy of 99.2% and an estimated Out-of-Sample error
+of less than 1% (0.76%) from `caret::confusionMatrix`.
 ```{r parsimony, echo=TRUE, message=FALSE, results='markup'}
 # Important variables
 importance <- varImp(rf)
@@ -147,8 +148,8 @@ confusionMatrix(pred.parsimony, testing$classe)
 
 ## Graphical Representation of Parsimonious Features
 The following graphic gives some idea of how `classe`
-is grouped by the first two features used to
-train the prediction function.  In reality,
+is grouped by the two most importat features used to
+train the prediction function (as indicated by `caret::varImp`).  In reality,
 18 features were used to train the random forest.
 ```{r parsimony_graphic, echo=FALSE}
 qplot(roll_belt, yaw_belt, col=classe, data=training)
@@ -159,7 +160,7 @@ Apply refined features and prediction function to validation set.
 Out-of-sample error of
 the most parsimonious prediction function
 is estimated to be less than 1% (0.76%), with a cross-validated
-accuracy of 99.25%.  In practice,
+accuracy of 99.2% (from `caret::confusionMatrix`).  In practice,
 20 predictions, based on the `validation` dataset, 
 were uploaded for grading and found to be 100% accurate.
 
