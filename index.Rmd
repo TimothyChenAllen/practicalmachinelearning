@@ -23,8 +23,8 @@ https://github.com/TimothyChenAllen/practicalmachinelearning
 Out-of-sample error of
 the most parsimonious prediction function,
 using only 18 features,
-is estimated to be 0.84%, with a cross-validated
-accuracy of 99.07%.
+is estimated to be less than 1% (0.76%), with a cross-validated
+accuracy of 99.25%.
 
 ## Method
 1. **Split Datasets**. Three datasets are used: the original training dataset is split into a `training` and `testing` set. The original testing dataset is held aside as the `validation` set.
@@ -127,8 +127,8 @@ Use `caret::varImp` to
 determine the most parsimonious set of features
 that retains a good error rate.  Reducing the number 
 of features from 53 to 18 retains a cross-validated
-accuracy of 99.07% and an estimated Out-of-Sample error
-of 0.84%.
+accuracy of 99.25% and an estimated Out-of-Sample error
+of less than 1% (0.76%).
 ```{r parsimony, echo=TRUE, message=FALSE, results='markup'}
 # Important variables
 importance <- varImp(rf)
@@ -138,7 +138,7 @@ training.parsimony <- training.important[,match(c("classe",important.features[1:
                                                 names(training.important))]
 
 # Try a more parsimonious model based on these importance values
-rf.parsimony <- randomForest(classe ~ ., data=training.parsimony, ntree=200 )
+(rf.parsimony <- randomForest(classe ~ ., data=training.parsimony, ntree=200 ))
 # predict outcome for test data set using the random forest model
 pred.parsimony <- predict(rf.parsimony,testing)
 # Show confusion matrix of prediction function
@@ -158,8 +158,8 @@ qplot(roll_belt, yaw_belt, col=classe, data=training)
 Apply refined features and prediction function to validation set.  
 Out-of-sample error of
 the most parsimonious prediction function
-is estimated to be 0.84%, with a cross-validated
-accuracy of 99.07%.  In practice,
+is estimated to be less than 1% (0.76%), with a cross-validated
+accuracy of 99.25%.  In practice,
 20 predictions, based on the `validation` dataset, 
 were uploaded for grading and found to be 100% accurate.
 

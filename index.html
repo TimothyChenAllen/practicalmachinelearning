@@ -78,7 +78,7 @@ img {
 </div>
 <div id="expected-out-of-sample-error" class="section level2">
 <h2>Expected Out-of-Sample Error</h2>
-<p>Out-of-sample error of the most parsimonious prediction function, using only 18 features, is estimated to be 0.84%, with a cross-validated accuracy of 99.07%.</p>
+<p>Out-of-sample error of the most parsimonious prediction function, using only 18 features, is estimated to be 0.84%, with a cross-validated accuracy of 99.25%.</p>
 </div>
 <div id="method" class="section level2">
 <h2>Method</h2>
@@ -187,7 +187,7 @@ confusionMatrix(testing$classe, pred.important)</code></pre>
 </div>
 <div id="refine-the-features-to-seek-parsimony" class="section level2">
 <h2>Refine the Features to Seek Parsimony</h2>
-<p>Use <code>caret::varImp</code> to determine the most parsimonious set of features that retains a good error rate. Reducing the number of features from 53 to 18 retains a cross-validated accuracy of 99.07% and an estimated Out-of-Sample error of 0.84%.</p>
+<p>Use <code>caret::varImp</code> to determine the most parsimonious set of features that retains a good error rate. Reducing the number of features from 53 to 18 retains a cross-validated accuracy of 99.25% and an estimated Out-of-Sample error of 0.84%.</p>
 <pre class="r"><code># Important variables
 importance &lt;- varImp(rf)
 important.features &lt;- importance %&gt;% mutate(nm=rownames(importance)) %&gt;% arrange(desc(Overall))
@@ -196,8 +196,23 @@ training.parsimony &lt;- training.important[,match(c(&quot;classe&quot;,importan
                                                 names(training.important))]
 
 # Try a more parsimonious model based on these importance values
-rf.parsimony &lt;- randomForest(classe ~ ., data=training.parsimony, ntree=200 )
-# predict outcome for test data set using the random forest model
+(rf.parsimony &lt;- randomForest(classe ~ ., data=training.parsimony, ntree=200 ))</code></pre>
+<pre><code>## 
+## Call:
+##  randomForest(formula = classe ~ ., data = training.parsimony,      ntree = 200) 
+##                Type of random forest: classification
+##                      Number of trees: 200
+## No. of variables tried at each split: 4
+## 
+##         OOB estimate of  error rate: 0.76%
+## Confusion matrix:
+##      A    B    C    D    E class.error
+## A 3895    7    1    2    1 0.002816180
+## B   14 2628   15    1    0 0.011286682
+## C    0   15 2368   13    0 0.011686144
+## D    0    0   20 2230    2 0.009769094
+## E    0    1    3    9 2512 0.005148515</code></pre>
+<pre class="r"><code># predict outcome for test data set using the random forest model
 pred.parsimony &lt;- predict(rf.parsimony,testing)
 # Show confusion matrix of prediction function
 confusionMatrix(pred.parsimony, testing$classe)</code></pre>
@@ -205,33 +220,33 @@ confusionMatrix(pred.parsimony, testing$classe)</code></pre>
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
-##          A 1669    3    0    0    0
-##          B    3 1123    5    0    0
+##          A 1668    4    0    0    0
+##          B    3 1121    6    0    0
 ##          C    0   13 1019   15    1
-##          D    2    0    2  949    0
+##          D    3    1    1  949    0
 ##          E    0    0    0    0 1081
 ## 
 ## Overall Statistics
-##                                         
-##                Accuracy : 0.9925        
-##                  95% CI : (0.99, 0.9946)
-##     No Information Rate : 0.2845        
-##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16     
-##                                         
-##                   Kappa : 0.9905        
-##  Mcnemar's Test P-Value : NA            
+##                                           
+##                Accuracy : 0.992           
+##                  95% CI : (0.9894, 0.9941)
+##     No Information Rate : 0.2845          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.9899          
+##  Mcnemar's Test P-Value : NA              
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            0.9970   0.9860   0.9932   0.9844   0.9991
-## Specificity            0.9993   0.9983   0.9940   0.9992   1.0000
-## Pos Pred Value         0.9982   0.9929   0.9723   0.9958   1.0000
-## Neg Pred Value         0.9988   0.9966   0.9986   0.9970   0.9998
+## Sensitivity            0.9964   0.9842   0.9932   0.9844   0.9991
+## Specificity            0.9991   0.9981   0.9940   0.9990   1.0000
+## Pos Pred Value         0.9976   0.9920   0.9723   0.9948   1.0000
+## Neg Pred Value         0.9986   0.9962   0.9986   0.9970   0.9998
 ## Prevalence             0.2845   0.1935   0.1743   0.1638   0.1839
-## Detection Rate         0.2836   0.1908   0.1732   0.1613   0.1837
-## Detection Prevalence   0.2841   0.1922   0.1781   0.1619   0.1837
-## Balanced Accuracy      0.9982   0.9921   0.9936   0.9918   0.9995</code></pre>
+## Detection Rate         0.2834   0.1905   0.1732   0.1613   0.1837
+## Detection Prevalence   0.2841   0.1920   0.1781   0.1621   0.1837
+## Balanced Accuracy      0.9977   0.9912   0.9936   0.9917   0.9995</code></pre>
 </div>
 <div id="graphical-representation-of-parsimonious-features" class="section level2">
 <h2>Graphical Representation of Parsimonious Features</h2>
@@ -239,7 +254,7 @@ confusionMatrix(pred.parsimony, testing$classe)</code></pre>
 </div>
 <div id="apply-prediction-function-to-validation-dataset" class="section level2">
 <h2>Apply Prediction Function to Validation Dataset</h2>
-<p>Apply refined features and prediction function to validation set.<br />Out-of-sample error of the most parsimonious prediction function is estimated to be 0.84%, with a cross-validated accuracy of 99.07%. In practice, 20 predictions, based on the <code>validation</code> dataset, were uploaded for grading and found to be 100% accurate.</p>
+<p>Apply refined features and prediction function to validation set.<br />Out-of-sample error of the most parsimonious prediction function is estimated to be 0.84%, with a cross-validated accuracy of 99.25%. In practice, 20 predictions, based on the <code>validation</code> dataset, were uploaded for grading and found to be 100% accurate.</p>
 <pre class="r"><code>pred.validation &lt;- predict(rf.parsimony,validation)</code></pre>
 </div>
 <div id="references" class="section level2">
