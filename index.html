@@ -68,8 +68,8 @@ img {
 </div>
 
 
-<div id="study" class="section level2">
-<h2>Study</h2>
+<div id="purpose-and-data-source" class="section level2">
+<h2>Purpose and Data Source</h2>
 <p>This study uses <strong>Human Activity Recognition</strong> data (Velloso et al, 2013), collected from six exercisers equipped with accelerometers, to create and test a prediction function to predict exercise quality based on data from the accelerometers. This is a classification problem.</p>
 </div>
 <div id="github-repository" class="section level2">
@@ -90,10 +90,6 @@ img {
 <li><strong>Seek Parsimony</strong>. The <code>training</code> and <code>testing</code> datasets are used to find the smallest number of predictor features that return a good error rate. This avoids overfitting and improves robustness. The final prediction function is trained and corss-validated using a set of only 18 predictor features, while retaining good estimated out-of-sample error and accuracy.</li>
 <li><strong>Validate</strong>. Predictions are made using the <code>validation</code> dataset and submitted for grading.</li>
 </ol>
-</div>
-<div id="expected-out-of-sample-error-1" class="section level2">
-<h2>Expected Out-of-Sample Error</h2>
-<p>Out-of-sample error of the most parsimonious prediction function is estimated to be 0.84%, with a cross-validated accuracy of 99.07%.</p>
 </div>
 <div id="load-libraries" class="section level2">
 <h2>Load libraries</h2>
@@ -148,7 +144,7 @@ training.important &lt;- training %&gt;% select(match(keep.columns, names(traini
 </div>
 <div id="pick-the-prediction-function-and-cross-validate" class="section level2">
 <h2>Pick the prediction function and cross-validate</h2>
-<p><em>Random Forest</em> is trained using the <code>training</code> dataset, as it gives good accuracy on classification problems. The trained prediction function is cross-validated using the <code>testing</code> data set.</p>
+<p><em>Random Forest</em> is trained using the resulting subset of features in the <code>training</code> dataset, as it gives good accuracy on classification problems. The trained prediction function is cross-validated using the <code>testing</code> data set.</p>
 <pre class="r"><code>rf &lt;- randomForest(classe ~ . -classe, data=training.important, ntree=200 )</code></pre>
 </div>
 <div id="apply-features-and-prediction-function-to-test-set" class="section level2">

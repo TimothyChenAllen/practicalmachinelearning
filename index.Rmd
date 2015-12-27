@@ -2,6 +2,8 @@
 title: "Practical Machine Learning Course Project"
 author: "Timothy Chen Allen"
 date: "December 25, 2015"
+theme: united
+highlight: kate
 output: html_document
 ---
 
@@ -9,7 +11,7 @@ output: html_document
 knitr::opts_chunk$set(cache=TRUE)
 ```
 
-## Study
+## Purpose and Data Source
 This study uses **Human Activity Recognition** data (Velloso et al, 2013), collected from six
 exercisers equipped with accelerometers, to create and test a prediction function to predict
 exercise quality based on data from the accelerometers.  This is a classification problem.
@@ -43,12 +45,6 @@ and corss-validated using a set of only 18
 predictor features, while retaining good estimated
 out-of-sample error and accuracy.
 6. **Validate**. Predictions are made using the `validation` dataset and submitted for grading.
-
-## Expected Out-of-Sample Error
-Out-of-sample error of
-the most parsimonious prediction function
-is estimated to be 0.84%, with a cross-validated
-accuracy of 99.07%.
 
 ## Load libraries
 ```{r load_libraries, echo=TRUE, message=FALSE, results='hide'}
@@ -111,7 +107,7 @@ training.important <- training %>% select(match(keep.columns, names(training)))
 ```
 
 ## Pick the prediction function and cross-validate 
-*Random Forest* is trained using the `training` dataset,
+*Random Forest* is trained using the resulting subset of features in the `training` dataset,
 as it gives good accuracy on 
 classification problems.  The trained prediction function is cross-validated using the `testing` data set.
 ```{r pick_function, echo=TRUE, message=FALSE, results='hide'}
