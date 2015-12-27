@@ -12,7 +12,7 @@ knitr::opts_chunk$set(cache=TRUE)
 ```
 
 ## Purpose and Data Source
-This study uses **Human Activity Recognition** data (Velloso et al, 2013), collected from six
+This study uses **Human Activity Recognition** data ([Velloso et al, 2013](#velloso)), collected from six
 exercisers equipped with accelerometers, to create and test a prediction function to predict
 exercise quality based on data from the accelerometers.  This is a classification problem.
 
@@ -168,6 +168,7 @@ pred.validation <- predict(rf.parsimony,validation)
 ```
 
 ## References
+<a name="velloso"></a>
 Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. **Qualitative Activity Recognition of Weight Lifting Exercises**. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.
 
 Read more: http://groupware.les.inf.puc-rio.br/har
