@@ -78,7 +78,7 @@ img {
 </div>
 <div id="expected-out-of-sample-error" class="section level2">
 <h2>Expected Out-of-Sample Error</h2>
-<p>Out-of-sample error of the most parsimonious prediction function, using only 18 features, is estimated to be 0.84%, with a cross-validated accuracy of 99.25%.</p>
+<p>Out-of-sample error of the most parsimonious prediction function, using only 18 features, is estimated to be less than 1% (0.76%), with a cross-validated accuracy of 99.25%.</p>
 </div>
 <div id="method" class="section level2">
 <h2>Method</h2>
@@ -187,7 +187,7 @@ confusionMatrix(testing$classe, pred.important)</code></pre>
 </div>
 <div id="refine-the-features-to-seek-parsimony" class="section level2">
 <h2>Refine the Features to Seek Parsimony</h2>
-<p>Use <code>caret::varImp</code> to determine the most parsimonious set of features that retains a good error rate. Reducing the number of features from 53 to 18 retains a cross-validated accuracy of 99.25% and an estimated Out-of-Sample error of 0.84%.</p>
+<p>Use <code>caret::varImp</code> to determine the most parsimonious set of features that retains a good error rate. Reducing the number of features from 53 to 18 retains a cross-validated accuracy of 99.25% and an estimated Out-of-Sample error of less than 1% (0.76%).</p>
 <pre class="r"><code># Important variables
 importance &lt;- varImp(rf)
 important.features &lt;- importance %&gt;% mutate(nm=rownames(importance)) %&gt;% arrange(desc(Overall))
@@ -254,7 +254,7 @@ confusionMatrix(pred.parsimony, testing$classe)</code></pre>
 </div>
 <div id="apply-prediction-function-to-validation-dataset" class="section level2">
 <h2>Apply Prediction Function to Validation Dataset</h2>
-<p>Apply refined features and prediction function to validation set.<br />Out-of-sample error of the most parsimonious prediction function is estimated to be 0.84%, with a cross-validated accuracy of 99.25%. In practice, 20 predictions, based on the <code>validation</code> dataset, were uploaded for grading and found to be 100% accurate.</p>
+<p>Apply refined features and prediction function to validation set.<br />Out-of-sample error of the most parsimonious prediction function is estimated to be less than 1% (0.76%), with a cross-validated accuracy of 99.25%. In practice, 20 predictions, based on the <code>validation</code> dataset, were uploaded for grading and found to be 100% accurate.</p>
 <pre class="r"><code>pred.validation &lt;- predict(rf.parsimony,validation)</code></pre>
 </div>
 <div id="references" class="section level2">
